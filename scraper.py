@@ -8,6 +8,7 @@ def scraper(url, resp):
 def extract_next_links(url, resp):
     # Implementation required.
     # url: the URL that was used to get the page
+    # resp is of type Response
     # resp.url: the actual url of the page
     # resp.status: the status code returned by the server. 200 is OK, you got the page. Other numbers mean that there was some kind of problem.
     # resp.error: when status is not 200, you can check the error here, if needed.
@@ -21,6 +22,8 @@ def is_valid(url):
     # Decide whether to crawl this url or not. 
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
+
+    '''THERE MAY BE MORE TO CONSIDER '''
     try:
         parsed = urlparse(url)
         if parsed.scheme not in set(["http", "https"]):
