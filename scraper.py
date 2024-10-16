@@ -1,8 +1,10 @@
 import re
 from urllib.parse import urlparse
+from bs4 import BeautifulSoup
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
+    print(f'LINKS {links}')
     return [link for link in links if is_valid(link)]
 
 def extract_next_links(url, resp):
@@ -16,6 +18,14 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
+    parsedContent = BeautifulSoup(resp.raw_response.content, "html.parser")
+    print(f"PARSED CONTENT: {parsedContent}")  # HTML from the files
+    for link_tages in parsedContent.find_all('a'):
+        partial_link = link_tages.get('href')
+        print(f' Partial URL {partial_link}') # note this may be a relative path
+
+
+    
     return list()
 
 def is_valid(url):

@@ -1,0 +1,10 @@
+Crawling Algorithm
+Initialize a queue of URLs (seeds) // does not have to be a queue could be another DS
+first URLs come from the programmer, need to seed the algorithm for an initial URL (e.g. uci.edu)
+go on infinite loop, repear until no more URLs in queue
+get one URL from the queue
+check if the page can be crawled, fetch associated page (HTML, Pdf, etc.)
+store representation of page locally
+extract URLs from page and add them to the queue
+may never end
+Queue = “frontier”

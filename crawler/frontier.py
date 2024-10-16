@@ -7,6 +7,9 @@ from queue import Queue, Empty
 from utils import get_logger, get_urlhash, normalize
 from scraper import is_valid
 
+'''
+This is essentially the queue where we store the links
+'''
 class Frontier(object):
     def __init__(self, config, restart):
         self.logger = get_logger("FRONTIER")
@@ -15,21 +18,26 @@ class Frontier(object):
         
         if not os.path.exists(self.config.save_file) and not restart:
             # Save file does not exist, but request to load save.
+            print(1)
             self.logger.info(
                 f"Did not find save file {self.config.save_file}, "
                 f"starting from seed.")
         elif os.path.exists(self.config.save_file) and restart:
+            print(2)
             # Save file does exists, but request to start from seed.
             self.logger.info(
                 f"Found save file {self.config.save_file}, deleting it.")
             os.remove(self.config.save_file)
         # Load existing save file, or create one if it does not exist.
         self.save = shelve.open(self.config.save_file)
+        print(f'SELF SAVE {self.save}')
         if restart:
+            print(3)
             for url in self.config.seed_urls:
                 self.add_url(url)
         else:
             # Set the frontier state with contents of save file.
+            print(4)
             self._parse_save_file()
             if not self.save:
                 for url in self.config.seed_urls:
@@ -40,6 +48,7 @@ class Frontier(object):
         total_count = len(self.save)
         tbd_count = 0
         for url, completed in self.save.values():
+            print(f'URL {url}, COMPLETED {completed}')
             if not completed and is_valid(url):
                 self.to_be_downloaded.append(url)
                 tbd_count += 1
