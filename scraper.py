@@ -4,7 +4,9 @@ from bs4 import BeautifulSoup
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
+
     return [link for link in links if is_valid(link)]
+
 
 def extract_next_links(url, resp):
     # Implementation required.
@@ -17,15 +19,24 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
+    if resp.status != 200:
+        print(f'ERROR : {resp.error}')
+        # error with this link: https://ics.uci.edu/events/category/department-seminars/
+        return []
+    
     link_list = []
     
     parsedContent = BeautifulSoup(resp.raw_response.content, "html.parser")
     for link_tags in parsedContent.find_all('a'):
         retrieved_link = link_tags.get('href') # note this may be a a partial or full URL, if partial then concatenate with current URL
         a_URL = check_if_complete_URL(retrieved_link, resp.raw_response.url)
-        link_list.append(a_URL)
+        if (valid_content): # to prevent getting stuck in calendar
+            link_list.append(a_URL)
   
     return link_list
+
+def valid_content(resp): # will have to add more checks to prevent traps
+    return "No event" not in resp.raw_response and "No results" not in resp.raw_response
 
 def check_if_complete_URL(link, current_url):
     '''
@@ -73,6 +84,7 @@ def is_valid(url):
         print(f"MADE IT {parsed}")
         if parsed.scheme not in set(["http", "https"]):
             return False
+            
     
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
