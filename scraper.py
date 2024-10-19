@@ -1,10 +1,9 @@
 import re
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
-    print(f'LINKS {links}')
     return [link for link in links if is_valid(link)]
 
 def extract_next_links(url, resp):
@@ -18,15 +17,28 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
-    parsedContent = BeautifulSoup(resp.raw_response.content, "html.parser")
-    print(f"PARSED CONTENT: {parsedContent}")  # HTML from the files
-    for link_tages in parsedContent.find_all('a'):
-        partial_link = link_tages.get('href')
-        print(f' Partial URL {partial_link}') # note this may be a relative path
-
-
+    link_list = []
     
-    return list()
+    parsedContent = BeautifulSoup(resp.raw_response.content, "html.parser")
+    for link_tags in parsedContent.find_all('a'):
+        retrieved_link = link_tags.get('href') # note this may be a a partial or full URL, if partial then concatenate with current URL
+        a_URL = check_if_complete_URL(retrieved_link, resp.raw_response.url)
+        link_list.append(a_URL)
+  
+    return link_list
+
+def check_if_complete_URL(link, current_url):
+    '''
+        Checks if the link is a complete or relative URL. If complete it returns a string URL. If not complete, it
+        combines the current pages URL with the relative one.
+    '''
+    if urlparse(link).scheme == '':
+        return urljoin(current_url, link)
+    else:
+        return link
+        
+    
+
 
 def is_valid(url):
     # Decide whether to crawl this url or not. 
@@ -35,9 +47,33 @@ def is_valid(url):
 
     '''THERE MAY BE MORE TO CONSIDER '''
     try:
+        print(f"POTENTIAL URL: {url}")
+
+        potential_domains = ["ics.uci.edu", "cs.uci.edu", "informatics.uci.edu","stat.uci.edu", "today.uci.edu"]
         parsed = urlparse(url)
+        
+        '''
+        Checks if it is within the given domains
+        '''
+        if isinstance(parsed.netloc, bytes):
+            netloc = parsed.netloc.decode('utf-8')
+            path = parsed.path.decode('utf-8')
+        else:
+            netloc = parsed.netloc
+            path = parsed.path
+        print(f"NETLOC PATH: {netloc}, {path}")
+
+        flag = False
+        if netloc in potential_domains:
+            if netloc == "today.uci.edu" and "department/information_computer_sciences" not in path:
+                return False
+        else:
+            return False
+
+        print(f"MADE IT {parsed}")
         if parsed.scheme not in set(["http", "https"]):
             return False
+    
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
