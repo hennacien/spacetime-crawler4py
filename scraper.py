@@ -1,6 +1,6 @@
 import re
 from urllib.parse import urlparse, urljoin
-from bs4 import BeautifulSoup
+from lxml import html
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
@@ -26,9 +26,9 @@ def extract_next_links(url, resp):
     
     link_list = []
     
-    parsedContent = BeautifulSoup(resp.raw_response.content, "html.parser")
-    for link_tags in parsedContent.find_all('a'):
-        retrieved_link = link_tags.get('href') # note this may be a a partial or full URL, if partial then concatenate with current URL
+    lxmlContent = html.fromstring(resp.raw_response.content) # faster than BeautifulSoup so opted for this
+    anchor_tags = lxmlContent.xpath('//a/@href') # gets all anchor tags in HTML
+    for retrieved_link in anchor_tags:
         a_URL = check_if_complete_URL(retrieved_link, resp.raw_response.url)
         if (valid_content): # to prevent getting stuck in calendar
             link_list.append(a_URL)
@@ -58,8 +58,6 @@ def is_valid(url):
 
     '''THERE MAY BE MORE TO CONSIDER '''
     try:
-        print(f"POTENTIAL URL: {url}")
-
         potential_domains = ["ics.uci.edu", "cs.uci.edu", "informatics.uci.edu","stat.uci.edu", "today.uci.edu"]
         parsed = urlparse(url)
         
