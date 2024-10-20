@@ -29,6 +29,13 @@ def get_urlhash(url):
         f"{parsed.netloc}/{parsed.path}/{parsed.params}/"
         f"{parsed.query}/{parsed.fragment}".encode("utf-8")).hexdigest()
 
+def get_urlhash_no_fragment(url): # added this so we can find the unique URLs without fragment
+    parsed = urlparse(url)
+    # everything other than fragment.
+    return sha256(
+        f"{scheme}://{parsed.netloc}/{parsed.path}/{parsed.params}/"
+        f"{parsed.query}".encode("utf-8")).hexdigest()
+
 def normalize(url):
     if url.endswith("/"):
         return url.rstrip("/")
