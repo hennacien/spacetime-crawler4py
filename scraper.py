@@ -1,6 +1,8 @@
 import re
 from urllib.parse import urlparse, urljoin
 from lxml import html
+import os
+import shelve
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
@@ -15,25 +17,31 @@ def parse_link_content(link, resp):
     parsed_text = parsed_content.xpath('//body//text()') # gives a list of text
     text_string = ''.join(parsed_text).strip() # gives all the text formatted in a string
     totalWords, wordMappings = count_frequencies(tokenize(text_string))
-    # largest_file(link, totalWords)
+    largest_file(link, totalWords)
 
-# CONTINUE THIS
-# def largest_file(url, totalWords):
-#     with open('largestFile.txt', 'r') as file:
-#         file.seek(0, 2)
-#         sizeOfFile = file.tell()
-#         if sizeOfFile > 0:
-#             with open('largestFile.txt', 'r+') as file:
-#             contents = file.readlines()
-#             if (len(contents) >= 1):
-#                 if contents[1] <= totalWords:
-#                     file.seek(0)
-#                     file.write(f'{url}\n')
-#                     file.write(f'totalWords')
-#             else:
-#                 print("Error, corrupted file")
+# CONTINUE THIS 
+def largest_file(url, totalWords):
+    print(f"\nTOTAL WORDS {totalWords}\n")
+    print(f"\nURL HERE {url}\n")
+    if os.path.exists('largestFile.txt'):
+        with shelve.open('largestFile.txt', writeback=True) as shelf:
+            if 'url' in shelf and 'totalWords' in shelf:
+                if shelf['totalWords'] <= totalWords:
+                    shelf['url'] = url
+                    shelf['totalWords'] = totalWords
+            else:
+                shelf['url'] = url
+                shelf['totalWords'] = totalWords
+            shelf.sync()
+
+               
+    else:
+        with open('largestFile.txt', 'w', encoding='utf-8') as file:
+            file.write(f'{url}\n')
+            file.write(f'{totalWords}\n')
 
 
+# NEED TO FIX THIS
 def is_ascii(character):
     ascii_code = ord(character)
     return (ascii_code >= 48 and ascii_code <= 57) or (ascii_code >=65 and ascii_code >= 90) or (ascii_code >= 97 and ascii_code <= 122)
