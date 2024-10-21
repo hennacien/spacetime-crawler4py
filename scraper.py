@@ -17,28 +17,26 @@ def parse_link_content(link, resp):
     parsed_text = parsed_content.xpath('//body//text()') # gives a list of text
     text_string = ''.join(parsed_text).strip() # gives all the text formatted in a string
     totalWords, wordMappings = count_frequencies(tokenize(text_string))
-    # largest_file(link, totalWords)
+    largest_file(link, totalWords)
 
 # CONTINUE THIS 
-# def largest_file(url, totalWords):
-#     print(f"\nTOTAL WORDS {totalWords}\n")
-#     print(f"\nURL HERE {url}\n")
-#     if os.path.exists('largestFile.txt'):
-#         with shelve.open('largestFile.txt', writeback=True) as shelf:
-#             if 'url' in shelf and 'totalWords' in shelf:
-#                 if shelf['totalWords'] <= totalWords:
-#                     shelf['url'] = url
-#                     shelf['totalWords'] = totalWords
-#             else:
-#                 shelf['url'] = url
-#                 shelf['totalWords'] = totalWords
-#             shelf.sync()
-
-               
-#     else:
-#         with open('largestFile.txt', 'w', encoding='utf-8') as file:
-#             file.write(f'{url}\n')
-#             file.write(f'{totalWords}\n')
+def largest_file(url, totalWords):
+    print(f"\nTOTAL WORDS {totalWords}\n")
+    print(f"\nURL HERE {url}\n")
+    # if os.path.exists('largestFile.db'):
+    with shelve.open('largestFile.db', writeback=True) as shelf:
+        if 'url' in shelf and 'totalWords' in shelf:
+            if shelf['totalWords'] <= totalWords:
+                shelf['url'] = url
+                shelf['totalWords'] = totalWords
+        else:
+            shelf['url'] = url
+            shelf['totalWords'] = totalWords
+        print(f"ACTUAL TOTAL WORDS: {shelf['totalWords']}")
+        print(f"ACTUAL URL: {shelf['url']}")
+        shelf.sync()
+   
+    
 
 
 # NEED TO FIX THIS
