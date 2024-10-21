@@ -25,16 +25,12 @@ def get_logger(name, filename=None):
 def get_urlhash(url):
     parsed = urlparse(url)
     # everything other than scheme.
-    return sha256(
-        f"{parsed.netloc}/{parsed.path}/{parsed.params}/"
-        f"{parsed.query}/{parsed.fragment}".encode("utf-8")).hexdigest()
+    return f"{parsed.netloc}/{parsed.path}/{parsed.params}/{parsed.query}/{parsed.fragment}"
 
-def get_urlhash_no_fragment(url): # added this so we can find the unique URLs without fragment
+def get_url_no_fragment(url): # added this so we can find the unique URLs without fragment
     parsed = urlparse(url)
     # everything other than fragment.
-    return sha256(
-        f"{scheme}://{parsed.netloc}/{parsed.path}/{parsed.params}/"
-        f"{parsed.query}".encode("utf-8")).hexdigest()
+    return  f"{parsed.scheme}://{parsed.netloc}/{parsed.path}/{parsed.params}/{parsed.query}"
 
 def normalize(url):
     if url.endswith("/"):

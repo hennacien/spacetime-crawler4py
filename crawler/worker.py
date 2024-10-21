@@ -13,6 +13,7 @@ class Worker(Thread):
         self.config = config
         self.frontier = frontier
         self.unique_urls = set() # added this, will store the unique URLs for answering the questions
+        self.largest_page = "" # set to page with most amount of words
         # basic check for requests in scraper
         assert {getsource(scraper).find(req) for req in {"from requests import", "import requests"}} == {-1}, "Do not use requests in scraper.py"
         assert {getsource(scraper).find(req) for req in {"from urllib.request import", "import urllib.request"}} == {-1}, "Do not use urllib.request in scraper.py"

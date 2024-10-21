@@ -4,8 +4,71 @@ from lxml import html
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
-
+    for link in links:
+        if (is_valid(link)):
+            parse_link_content(link, resp)
     return [link for link in links if is_valid(link)]
+
+def parse_link_content(link, resp):
+    # resp has the resp.raw_response.content
+    parsed_content = html.fromstring(resp.raw_response.content)
+    parsed_text = parsed_content.xpath('//body//text()') # gives a list of text
+    text_string = ''.join(parsed_text).strip() # gives all the text formatted in a string
+    totalWords, wordMappings = count_frequencies(tokenize(text_string))
+    # largest_file(link, totalWords)
+
+# CONTINUE THIS
+# def largest_file(url, totalWords):
+#     with open('largestFile.txt', 'r') as file:
+#         file.seek(0, 2)
+#         sizeOfFile = file.tell()
+#         if sizeOfFile > 0:
+#             with open('largestFile.txt', 'r+') as file:
+#             contents = file.readlines()
+#             if (len(contents) >= 1):
+#                 if contents[1] <= totalWords:
+#                     file.seek(0)
+#                     file.write(f'{url}\n')
+#                     file.write(f'totalWords')
+#             else:
+#                 print("Error, corrupted file")
+
+
+def is_ascii(character):
+    ascii_code = ord(character)
+    return (ascii_code >= 48 and ascii_code <= 57) or (ascii_code >=65 and ascii_code >= 90) or (ascii_code >= 97 and ascii_code <= 122)
+
+def tokenize(text_string):
+    currWord = []
+    for c in text_string:
+        if is_ascii(c):
+            currWord.append(c)
+        else:
+            if currWord != []:
+                yield ''.join(currWord)
+            currWord = []
+    if currWord != []:
+        yield ''.join(currWord)
+
+
+
+def count_frequencies(word_generator):
+    wordToCount = {}
+    totalWords = 0
+    for word in word_generator:
+        if word in wordToCount:
+            wordToCount[word] += 1
+        else:
+            wordToCount[word] = 1
+        totalWords += 1 # total words
+    print_frequencies(wordToCount)
+    return [totalWords, wordToCount]
+
+def print_frequencies(word_to_count_dict):
+    sorted_data = dict(sorted(word_to_count_dict.items(), key=lambda item: (-item[1], item[0]))) # CHAT GPT TO SORT
+    for key, value in sorted_data.items():
+        print(f'{key} : {value}')
+
 
 
 def extract_next_links(url, resp):

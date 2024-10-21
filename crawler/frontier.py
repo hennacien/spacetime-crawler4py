@@ -4,7 +4,7 @@ import shelve
 from threading import Thread, RLock
 from queue import Queue, Empty
 
-from utils import get_logger, get_urlhash, normalize
+from utils import get_logger, get_urlhash, normalize, get_url_no_fragment
 from scraper import is_valid
 
 '''
@@ -66,13 +66,13 @@ class Frontier(object):
     def add_url(self, url):
         url = normalize(url)
         urlhash = get_urlhash(url)
-        unique_url_hash = get_urlhash_no_fragment(url)
+        unique_url = get_url_no_fragment(url)
         if urlhash not in self.save:
             self.save[urlhash] = (url, False)
             self.save.sync()
             self.to_be_downloaded.append(url)
-        if unique_url_hash not in self.unique_urls: # adds unique url to set
-            self.unique_urls.add(unique_url_hash)
+        if unique_url not in self.unique_urls: # adds unique url to set
+            self.unique_urls.add(unique_url)
     
     def mark_url_complete(self, url):
         urlhash = get_urlhash(url)
